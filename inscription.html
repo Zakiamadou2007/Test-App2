@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscription Vendeur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      background: #fff;
+      margin: 40px auto;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .form-step {
+      display: none;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+    }
+
+    .btn {
+      background: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: #0056b3;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .note {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Inscription Vendeur</h2>
+
+    <!-- Étape 1 -->
+    <form id="formStep1" class="form-step active">
+      <label for="nom">Nom</label>
+      <input type="text" id="nom" required>
+
+      <label for="prenom">Prénom</label>
+      <input type="text" id="prenom" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" required>
+
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" required>
+
+      <label>
+        <input type="checkbox" id="conditions">
+        J'accepte les conditions et je comprends qu’un agent me contactera pour discuter de l’abonnement mensuel selon la taille de ma boutique en ligne et le nombre de produits que je posterais.
+      </label>
+
+      <button type="button" class="btn" id="btnNextStep">Suivant</button>
+    </form>
+
+    <!-- Étape 2 -->
+    <form id="formStep2" class="form-step">
+      <label for="nomBoutique">Nom de la boutique</label>
+      <input type="text" id="nomBoutique" required>
+
+      <label for="imageBoutique">Image de la boutique (fond)</label>
+      <input type="file" id="imageBoutique" accept="image/*" required>
+
+      <label for="telBoutique">Numéro de téléphone de la boutique</label>
+      <input type="tel" id="telBoutique" required>
+
+      <label for="emailBoutique">Email de la boutique</label>
+      <input type="email" id="emailBoutique" required>
+
+      <label for="adresseBoutique">Adresse de la boutique</label>
+      <textarea id="adresseBoutique" rows="3" required></textarea>
+
+      <label for="urlBoutique">URL du site de la boutique</label>
+      <input type="url" id="urlBoutique" required>
+
+      <label for="categorie">Catégorie de votre boutique :</label>
+      <label for="categorie">Catégorie de votre boutique :</label>
+<select id="categorie" name="categorie" required>
+  <option value="" disabled selected>Choisissez une catégorie</option>
+  <option value="vetements">Vêtements</option>
+  <option value="beaute">Beauté</option>
+  <option value="alimentation">Alimentation</option>
+  <option value="accessoires">Accessoires</option>
+  <option value="electronique">Électronique</option>
+  <option value="maison">Maison</option>
+  <option value="jouets">Jouets</option>
+  <option value="cosmetiques">Cosmétiques</option>
+  <option value="chaussures">Chaussures</option>
+  <option value="bijoux">Bijoux</option>
+  <option value="sport">Sport</option>
+  <option value="sante">Santé</option>
+  <option value="telephone">Téléphone</option>
+  <option value="informatique">Informatique</option>
+  <option value="autre">Autre</option>
+</select>
+
+<p class="note">📸 Après l'envoi du message, veuillez joindre la photo de votre boutique dans la conversation WhatsApp.</p>
+
+     <button type="submit" class="btn">S'inscrire</button>
+    </form>
+  </div>
+
+ 
+<script>
+  const btnNextStep = document.getElementById('btnNextStep');
+
+  btnNextStep.addEventListener('click', () => {
+    const conditions = document.getElementById('conditions');
+    if (!conditions.checked) {
+      alert("⚠️ Vous devez accepter les conditions pour continuer.");
+      return;
+    }
+    document.getElementById('formStep1').classList.remove('active');
+    document.getElementById('formStep2').classList.add('active');
+  });
+
+  const formStep2 = document.getElementById('formStep2');
+
+  formStep2.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Étape 1
+    const nom = document.getElementById('nom').value.trim();
+    const prenom = document.getElementById('prenom').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    // Étape 2
+    const nomBoutique = document.getElementById('nomBoutique').value.trim();
+    const telBoutique = document.getElementById('telBoutique').value.trim();
+    const emailBoutique = document.getElementById('emailBoutique').value.trim();
+    const adresseBoutique = document.getElementById('adresseBoutique').value.trim();
+    const urlBoutique = document.getElementById('urlBoutique').value.trim();
+    const categorie = document.getElementById('categorie').value;
+
+    // WhatsApp message formaté
+    const message = 
+      `Bonjour,%0A` +
+      `Je m'appelle ${prenom} ${nom}.%0A` +
+      `Voici les informations de ma boutique :%0A` +
+      `📛 Nom boutique : ${nomBoutique}%0A` +
+      `📞 Tel boutique : ${telBoutique}%0A` +
+      `📧 Email boutique : ${emailBoutique}%0A` +
+      `🏠 Adresse : ${adresseBoutique}%0A` +
+      `🔗 Site : ${urlBoutique}%0A` +
+      `🗂️ Catégorie : ${categorie}%0A%0A` +
+      `📸 Je vais maintenant envoyer la photo de la boutique dans ce chat.%0A` +
+      `Merci de me recontacter pour finaliser mon inscription.`;
+
+    const phone = "22786084836";
+
+    const whatsappURL = `https://wa.me/${phone}?text=${message}`;
+    window.open(whatsappURL, "_blank");
+  });
+</script>
+
+</body>
+</html>

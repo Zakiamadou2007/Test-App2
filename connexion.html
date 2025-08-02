@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Connexion boutique</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .form-container {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      padding: 12px;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 6px;
+      width: 100%;
+    }
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Connexion boutique</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Adresse e-mail" required />
+      <input type="password" id="password" placeholder="Mot de passe" required />
+      <button type="submit">Se connecter</button>
+    </form>
+    <p id="message"></p>
+    <p>Pas encore de compte ? <a href="signup.html">Créer un compte</a></p>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC9oYZHFWB8hw4pLRp7rjNyLxtkW4ibRew",
+      authDomain: "niger-market-467f2.firebaseapp.com",
+      databaseURL: "https://niger-market-467f2-default-rtdb.firebaseio.com",
+      projectId: "niger-market-467f2",
+      storageBucket: "niger-market-467f2.appspot.com",
+      messagingSenderId: "789267066968",
+      appId: "1:789267066968:web:6461c5201b32a2c1585a2d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const form = document.getElementById('loginForm');
+    const msg = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const userId = userCredential.user.uid;
+        msg.textContent = "✅ Connexion réussie ! Redirection...";
+        form.reset();
+
+        // Redirection vers compte.html avec uid
+        setTimeout(() => {
+          window.location.href = `compte.html?uid=${userId}`;
+        }, 1200);
+
+      } catch (error) {
+        console.error(error);
+        if (error.code === 'auth/user-not-found') {
+          msg.textContent = "❌ Utilisateur non trouvé.";
+        } else if (error.code === 'auth/wrong-password') {
+          msg.textContent = "❌ Mot de passe incorrect.";
+        } else {
+          msg.textContent = "❌ Erreur : " + error.message;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

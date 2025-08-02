@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compte Vendeur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+
+    .profile-pic {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #333;
+      margin-bottom: 20px;
+      background: #eee;
+    }
+
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #editSection {
+      display: none;
+    }
+
+    .visits {
+      font-size: 14px;
+      color: gray;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Profil de la boutique</h2>
+    <img id="profileImage" src="https://via.placeholder.com/150" alt="Logo boutique" class="profile-pic" />
+
+    <div id="infoSection">
+      <p><strong>Nom de la boutique :</strong> <span id="nomBoutique"></span></p>
+      <p><strong>Adresse :</strong> <span id="adresse"></span></p>
+      <p><strong>WhatsApp :</strong> <span id="whatsapp"></span></p>
+      <p><strong>Email :</strong> <span id="email"></span></p>
+      <p class="visits"><span id="visitCount">0</span> visites</p>
+      <button onclick="enableEdit()">Modifier les informations</button>
+    </div>
+
+    <div id="editSection">
+      <input type="text" id="editNom" placeholder="Nom de la boutique" />
+      <input type="text" id="editAdresse" placeholder="Adresse" />
+      <input type="text" id="editWhatsapp" placeholder="Numéro WhatsApp" />
+      <input type="email" id="editEmail" placeholder="Email" />
+      <input type="file" id="imageUpload" accept="image/*" />
+      <button onclick="saveChanges()">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <script>
+    // Mets ici ta vraie config Firebase, identique à celle de la page inscription !
+    const firebaseConfig = {
+      apiKey: "AIzaSyC9oYZHFWB8hw4pLRp7rjNyLxtkW4ibRew",
+      authDomain: "niger-market-467f2.firebaseapp.com",
+      databaseURL: "https://niger-market-467f2-default-rtdb.firebaseio.com",
+      projectId: "niger-market-467f2",
+      storageBucket: "niger-market-467f2.appspot.com",
+      messagingSenderId: "789267066968",
+      appId: "1:789267066968:web:6461c5201b32a2c1585a2d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    // On récupère l'UID en paramètre URL "uid"
+    const uid = new URLSearchParams(window.location.search).get("uid");
+    if (!uid) {
+      alert("Erreur : Identifiant utilisateur (uid) manquant dans l'URL.");
+      throw new Error("uid manquant");
+    }
+
+    const profileRef = db.ref("boutiques/" + uid);
+
+    const nomBoutique = document.getElementById("nomBoutique");
+    const adresse = document.getElementById("adresse");
+    const whatsapp = document.getElementById("whatsapp");
+    const email = document.getElementById("email");
+    const visitCount = document.getElementById("visitCount");
+    const profileImage = document.getElementById("profileImage");
+
+    const editSection = document.getElementById("editSection");
+    const infoSection = document.getElementById("infoSection");
+
+    function enableEdit() {
+      editSection.style.display = "block";
+      infoSection.style.display = "none";
+
+      document.getElementById("editNom").value = nomBoutique.textContent;
+      document.getElementById("editAdresse").value = adresse.textContent;
+      document.getElementById("editWhatsapp").value = whatsapp.textContent;
+      document.getElementById("editEmail").value = email.textContent;
+    }
+
+    async function saveChanges() {
+      const newNom = document.getElementById("editNom").value.trim();
+      const newAdresse = document.getElementById("editAdresse").value.trim();
+      const newWhatsapp = document.getElementById("editWhatsapp").value.trim();
+      const newEmail = document.getElementById("editEmail").value.trim();
+      const imageFile = document.getElementById("imageUpload").files[0];
+
+      let imageUrl = "";
+
+      if (imageFile) {
+        const storageRef = storage.ref("logos/" + uid + ".jpg");
+        await storageRef.put(imageFile);
+        imageUrl = await storageRef.getDownloadURL();
+      }
+
+      const updateData = {
+        nom_boutique: newNom,
+        adresse: newAdresse,
+        whatsapp: newWhatsapp,
+        email: newEmail
+      };
+
+      if (imageUrl) {
+        updateData.imageBoutiqueUrl = imageUrl;
+      }
+
+      await profileRef.update(updateData);
+      // Recharge les infos sans recharger la page entière
+      loadProfile();
+      editSection.style.display = "none";
+      infoSection.style.display = "block";
+    }
+
+    async function loadProfile() {
+      const snapshot = await profileRef.once("value");
+      const data = snapshot.val();
+      if (data) {
+        nomBoutique.textContent = data.nom_boutique || "";
+        adresse.textContent = data.adresse || "";
+        whatsapp.textContent = data.whatsapp || "";
+        email.textContent = data.email || "";
+
+        if (data.imageBoutiqueUrl) {
+          profileImage.src = data.imageBoutiqueUrl;
+        } else {
+          profileImage.src = "https://via.placeholder.com/150";
+        }
+
+        // Incrémente visites
+        const visits = data.visites || 0;
+        visitCount.textContent = visits + 1;
+        await profileRef.update({ visites: visits + 1 });
+      } else {
+        alert("Données introuvables pour cet utilisateur.");
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
